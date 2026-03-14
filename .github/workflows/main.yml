@@ -1,0 +1,51 @@
+name: Stock Monitor Bot
+
+on:
+  schedule:
+    # O mercado brasileiro opera das 10h às 17h (Horário de Brasília).
+    # Como o GitHub usa UTC (Brasília +3h), o cron deve ser das 13h às 20h.
+    # '*/30' significa a cada 30 minutos.
+    - cron: '*/30 13-20 * * 1-5'
+  workflow_dispatch: # Permite que você rode o bot manualmente pelo botão "Run workflow"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    # Permissões para que o bot possa fazer o "git push" do CSV atualizado
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13' # Usando a versão que você já está usando
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests pandas matplotlib python-dotenv
+
+      - name: Run Stock Bot
+        env:
+          # Aqui o GitHub pega os seus Secrets e entrega para o Python via os.environ
+          BRAPI_TOKEN: ${{ secrets.BRAPI_TOKEN }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          DISCORD_USER_ID: ${{ secrets.DISCORD_USER_ID }}
+        run: python main.py
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+          
+          # Adiciona apenas o CSV. Ignoramos a pasta charts/ conforme seu .gitignore
+          git add stock_data.csv
+          
+          # Só faz o commit se houver mudanças no arquivo para evitar erros
+          git diff --quiet && git diff --staged --quiet || (git commit -m "chore: update stock data [skip ci]" && git push)

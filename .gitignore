@@ -1,0 +1,20 @@
+# Variáveis de ambiente (Segredos)
+.env
+
+# Pastas de cache do Python
+__pycache__/
+*.py[cod]
+
+# Dados e Gráficos
+charts/
+stock_data.csv
+
+# Ambientes virtuais
+venv/
+.venv/
+
+.vscode/
+
+describe.ipynb
+describe.py
+teste.py
