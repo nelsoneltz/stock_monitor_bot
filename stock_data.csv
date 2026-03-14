@@ -1,4 +1,0 @@
-symbol,shortName,longName,currency,regularMarketPrice,regularMarketDayHigh,regularMarketDayLow,regularMarketDayRange,regularMarketChange,regularMarketChangePercent,regularMarketTime,marketCap,regularMarketVolume,regularMarketPreviousClose,regularMarketOpen,fiftyTwoWeekRange,fiftyTwoWeekLow,fiftyTwoWeekHigh,priceEarnings,earningsPerShare
-AURA33,AURA33,Aura Minerals Inc Shs Unsponsored Brazilian Depositary Receipt Repr 1 Sh,BRL,133.1,142,132.09,132.09 - 142,-6.9,-4.93,2026-03-13T21:30:44.000Z,35202259163.598114,662100,133.2,141,29.54 - 156,29.54,156,,-0.0020462
-PETR4,PETR4,Petroleo Brasileiro SA Pfd,BRL,44.67,45.34,44.29,44.29 - 45.34,-0.33,-0.73,2026-03-13T21:30:44.000Z,608513904642,42477900,44.76,44.61,28.86 - 46.09,28.86,46.09,5.2278632118531,8.5445949
-VALE3,VALE3,Vale S.A.,BRL,78.3,80.49,78.02,78.02 - 80.49,-0.94,-1.19,2026-03-13T21:30:44.000Z,338258024625,14357800,78.16,79.3,48.77 - 91.62,48.77,91.62,24.279069767441857,3.2360644

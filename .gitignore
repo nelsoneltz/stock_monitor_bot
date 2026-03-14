@@ -6,7 +6,7 @@ __pycache__/
 *.py[cod]
 
 # Dados e Gráficos
-charts/
+# charts/
 # stock_data.csv
 
 # Ambientes virtuais
