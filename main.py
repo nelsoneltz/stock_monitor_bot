@@ -4,17 +4,17 @@ from api import get_stock_price
 from charts import create_charts
 from notifier import send_discord_message
 
-# Carrega variáveis de ambiente
+# Load environment variables
 load_dotenv()
 
 def main():
-    # Garante que o diretório de execução é o do script
+    # Ensure the working directory is the script's directory
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
     
     tickers = ["AURA33", "PETR4", "VALE3"]
     stock_results = []
 
-    print("Iniciando coleta de dados...")
+    print("Starting data collection...")
     for ticker in tickers:
         try:
             price, change, time, res = get_stock_price(ticker)
@@ -23,12 +23,12 @@ def main():
                 'change': change, 'time': time, 'stock_data': res
             })
         except Exception as e:
-            print(f"Erro ao processar {ticker}: {e}")
+            print(f"Error processing {ticker}: {e}")
     
-    print("Gerando gráficos...")
+    print("Generating charts...")
     create_charts() 
 
-    print("Enviando notificações...")
+    print("Sending notifications...")
     for stock in stock_results:
         send_discord_message(
             stock['price'], stock['change'], 

@@ -6,17 +6,17 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
 def create_charts():
-    # Carregar configuração
+    # Load configuration
     with open('stock_thresholds.json', 'r') as f:
         config = json.load(f)
     
-    # Carregar dados
+    # Load data
     df = pd.read_csv('stock_data.csv')
     
-    # Converter coluna de data
+    # Convert date column
     df['regularMarketTime'] = pd.to_datetime(df['regularMarketTime'])
     
-    # Filtrar últimos 2 dias
+    # Filter last 2 days
     cutoff_date = pd.Timestamp.now(tz='UTC') - pd.Timedelta(days=2)
     df = df[df['regularMarketTime'] >= cutoff_date]
     
@@ -29,34 +29,34 @@ def create_charts():
             print(f"No data found for {ticker}")
             continue
 
-        # Tratamento de datas: Converter para UTC-3 (horário de Brasília)
+        # Date handling: Convert to UTC-3 (Brazil time)
         ticker_data['regularMarketTime'] = ticker_data['regularMarketTime'] - pd.Timedelta(hours=3)
         
-        # Ordenar por tempo para garantir que o gráfico flua corretamente
+        # Sort by time to ensure the chart flows correctly
         ticker_data = ticker_data.sort_values('regularMarketTime')
 
         plt.figure(figsize=(12, 6))
         
-        # 1. Área: Preenche entre o Mínimo (DayLow) e o Máximo (DayHigh)
+        # 1. Area: Fill between Minimum (DayLow) and Maximum (DayHigh)
         plt.fill_between(
             ticker_data['regularMarketTime'], 
             ticker_data['regularMarketDayLow'], 
             ticker_data['regularMarketDayHigh'], 
             color='skyblue', 
             alpha=0.3, 
-            label='Variação do Dia (Mín/Máx)'
+            label='Day Range (Min/Max)'
         )
 
-        # 2. Linha: Valor Atual (Price)
+        # 2. Line: Current Value (Price)
         plt.plot(
             ticker_data['regularMarketTime'], 
             ticker_data['regularMarketPrice'], 
             color='navy', 
             linewidth=2, 
-            label='Preço Atual'
+            label='Current Price'
         )
 
-        # 3. Anotações para valores no eixo X
+        # 3. Annotations for values on X axis
         for idx, row in ticker_data.iterrows():
             plt.annotate(
             f'{row["regularMarketPrice"]:.2f}',
@@ -68,8 +68,8 @@ def create_charts():
             color='darkblue',
             bbox=dict(boxstyle='round,pad=0.3', facecolor='white', edgecolor='gray', alpha=0.7)
             )
-        # 4. Linha de Threshold (Limite de Alerta)
-        ticker_threshold = config.get(ticker) # Busca o valor no dicionário carregado do JSON
+        # 4. Threshold Line (Alert Limit)
+        ticker_threshold = config.get(ticker) # Fetch value from loaded JSON dictionary
         
         if ticker_threshold:
             plt.axhline(
@@ -81,20 +81,20 @@ def create_charts():
                 alpha=0.8
             )
             
-            # Opcional: Adicionar um texto pequeno acima da linha no canto esquerdo
+            # Optional: Add small text above the line in the left corner
             plt.text(
                 ticker_data['regularMarketTime'].min(), 
                 ticker_threshold, 
-                f' Limite: R$ {ticker_threshold:.2f}', 
+                f' Limit: R$ {ticker_threshold:.2f}', 
                 color='red', 
                 va='bottom', 
                 fontsize=9,
                 fontweight='bold'
             )
-        # Estilização
-        plt.title(f'Análise de Preço: {ticker}', fontsize=14, fontweight='bold')
-        plt.xlabel('Hora/Data')
-        plt.ylabel('Preço (Moeda Local)')
+        # Styling
+        plt.title(f'Price Analysis: {ticker}', fontsize=14, fontweight='bold')
+        plt.xlabel('Time/Date')
+        plt.ylabel('Price (Local Currency)')
         plt.xticks(rotation=45)
         plt.grid(True, linestyle='--', alpha=0.6)
         plt.legend()
@@ -103,7 +103,7 @@ def create_charts():
         ax = plt.gca()
         ax.xaxis.set_major_formatter(mdates.DateFormatter('%d/%m %H:%M')) # Ex: 13/03 15:00
         ax.xaxis.set_major_locator(mdates.AutoDateLocator())
-        # Salvar
+        # Save
         output_dir = Path('charts')
         output_dir.mkdir(exist_ok=True)
         plt.savefig(output_dir / f'{ticker}_chart.png')

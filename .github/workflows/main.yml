@@ -2,17 +2,17 @@ name: Stock Monitor Bot
 
 on:
   schedule:
-    # O mercado brasileiro opera das 10h às 17h (Horário de Brasília).
-    # Como o GitHub usa UTC (Brasília +3h), o cron deve ser das 13h às 20h.
-    # '*/30' significa a cada 30 minutos.
+    # Brazilian market operates from 10am to 5pm (Brasília Time).
+    # Since GitHub uses UTC (Brasília +3h), cron should be from 1pm to 8pm UTC.
+    # '*/30' means every 30 minutes.
     - cron: '*/30 13-20 * * 1-5'
-  workflow_dispatch: # Permite que você rode o bot manualmente pelo botão "Run workflow"
+  workflow_dispatch: # Allows you to run the bot manually via "Run workflow" button
 
 jobs:
   build:
     runs-on: ubuntu-latest
     
-    # Permissões para que o bot possa fazer o "git push" do CSV atualizado
+    # Permissions so the bot can do "git push" for the updated CSV
     permissions:
       contents: write
 
@@ -23,7 +23,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.13' # Usando a versão que você já está usando
+          python-version: '3.13' # Using the version you're already using
           cache: 'pip'
 
       - name: Install Dependencies
@@ -33,7 +33,7 @@ jobs:
 
       - name: Run Stock Bot
         env:
-          # Aqui o GitHub pega os seus Secrets e entrega para o Python via os.environ
+          # Here GitHub takes your Secrets and delivers them to Python via os.environ
           BRAPI_TOKEN: ${{ secrets.BRAPI_TOKEN }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           DISCORD_USER_ID: ${{ secrets.DISCORD_USER_ID }}
@@ -44,8 +44,8 @@ jobs:
           git config --global user.name "GitHub Actions Bot"
           git config --global user.email "actions@github.com"
           
-          # Adiciona apenas o CSV. Ignoramos a pasta charts/ conforme seu .gitignore
+          # Add only the CSV. We ignore the charts/ folder according to your .gitignore
           git add stock_data.csv charts/*.png
           
-          # Só faz o commit se houver mudanças no arquivo para evitar erros
+          # Only commit if there are changes to the file to avoid errors
           git diff --quiet && git diff --staged --quiet || (git commit -m "chore: update stock data [skip ci]" && git push)

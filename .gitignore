@@ -1,20 +1,16 @@
-# Variáveis de ambiente (Segredos)
+# Environment variables (Secrets)
 .env
 
-# Pastas de cache do Python
+# Python cache folders
 __pycache__/
 *.py[cod]
 
-# Dados e Gráficos
-# charts/
-# stock_data.csv
-
-# Ambientes virtuais
+# Virtual environments
 venv/
 .venv/
 
+# IDE and editor settings for local development
 .vscode/
-
 describe.ipynb
 describe.py
 teste.py

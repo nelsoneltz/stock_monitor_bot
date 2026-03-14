@@ -22,7 +22,7 @@ def get_stock_price(ticker):
     change = res["regularMarketChangePercent"]
     time_utc = res["regularMarketTime"]
     
-    # Converter UTC para Brasília (UTC-3)
+    # Convert UTC to Brazil time (UTC-3)
     time_obj = datetime.fromisoformat(time_utc.replace('Z', '+00:00'))
     time_utc3 = time_obj - timedelta(hours=3)
     time = time_utc3.strftime("%Y-%m-%d %H:%M:%S")
