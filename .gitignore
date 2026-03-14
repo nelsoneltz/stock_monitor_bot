@@ -7,7 +7,7 @@ __pycache__/
 
 # Dados e Gráficos
 charts/
-stock_data.csv
+# stock_data.csv
 
 # Ambientes virtuais
 venv/
