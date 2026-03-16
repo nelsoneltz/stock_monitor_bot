@@ -122,7 +122,3 @@ The bot runs automatically via GitHub Actions every 30min during Brazilian marke
 **Charts not generating:** Ensure `charts/` folder exists or set different threshold
 
 **No Discord messages:** Verify webhook URL and permissions
-
----
-
-*For educational purposes only. Not financial advice.*
