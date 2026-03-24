@@ -14,5 +14,10 @@ venv/
 describe.ipynb
 describe.py
 teste.py
+teste2.py
+teste*.py
+test_*.py
+test_*.ipynb
 save.py
 .DS_Store
+
