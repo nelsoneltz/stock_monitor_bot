@@ -18,6 +18,7 @@ teste2.py
 teste*.py
 test_*.py
 test_*.ipynb
+temp_*
 save.py
 .DS_Store
 
