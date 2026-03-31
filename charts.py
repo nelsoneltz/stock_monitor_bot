@@ -24,7 +24,7 @@ def create_charts():
     df["regularMarketTime"] = pd.to_datetime(df["regularMarketTime"])
 
     # Filter last 2 days
-    cutoff_date = pd.Timestamp.now(tz="UTC") - pd.Timedelta(days=8)
+    cutoff_date = pd.Timestamp.now(tz="UTC") - pd.Timedelta(days=11)
     df = df[df["regularMarketTime"] >= cutoff_date]
 
     tickers = list(config.keys())
