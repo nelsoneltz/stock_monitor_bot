@@ -14,7 +14,7 @@ def main():
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
     # Load tickers from stock_threshholds.json
-    with open("stock_threshholds.json", "r") as f:
+    with open("stock_thresholds.json", "r") as f:
         thresholds = json.load(f)
     tickers = list(thresholds.keys())
 
