@@ -13,7 +13,7 @@ def save_data(data):
     df.to_csv('stock_data.csv', mode='a', header=not file_exists, index=False)
 
 def get_stock_price(ticker):
-    response = requests.get(f"{API_URL}{ticker}", headers=HEADERS)
+    response = requests.get(f"{API_URL}{ticker}", headers=HEADERS, timeout=10)
     data = response.json()
     save_data(data)
     
