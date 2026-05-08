@@ -2,16 +2,18 @@ name: Stock Monitor Bot
 
 on:
   schedule:
-    # Brazilian market operates from 10am to 5pm (Brasília Time).
-    # Since GitHub uses UTC (Brasília +3h), cron should be from 1pm to 8pm UTC.
-    # '*/30' means every 30 minutes.
+    # Brazilian market operates from 10am to 5pm (Brasília Time = UTC-3).
+    # Cron runs Mon-Fri, 13:12-20:42 UTC (10:12-17:42 BRT).
     - cron: '12,42 13-20 * * 1-5'
+    # Friday end-of-day: collect final closing price + send weekly report.
+    # 21:00 UTC = 18:00 BRT (after market close at 17:55 BRT).
+    - cron: '0 21 * * 5'
   workflow_dispatch: # Allows you to run the bot manually via "Run workflow" button
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     # Permissions so the bot can do "git push" for the updated CSV
     permissions:
       contents: write
@@ -23,29 +25,41 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.13' # Using the version you're already using
+          python-version: '3.13'
           cache: 'pip'
 
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install requests pandas matplotlib python-dotenv
+          pip install requests pandas matplotlib python-dotenv holidays
 
       - name: Run Stock Bot
+        if: github.event.schedule != '0 21 * * 5'
         env:
-          # Here GitHub takes your Secrets and delivers them to Python via os.environ
           BRAPI_TOKEN: ${{ secrets.BRAPI_TOKEN }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           DISCORD_USER_ID: ${{ secrets.DISCORD_USER_ID }}
         run: python main.py
 
+      - name: Run Stock Bot (Friday closing)
+        if: github.event.schedule == '0 21 * * 5'
+        env:
+          BRAPI_TOKEN: ${{ secrets.BRAPI_TOKEN }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          DISCORD_USER_ID: ${{ secrets.DISCORD_USER_ID }}
+        run: python main.py
+
+      - name: Send Weekly Report
+        if: github.event.schedule == '0 21 * * 5'
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: python weekly_report.py
+
       - name: Commit and Push Changes
         run: |
           git config --global user.name "GitHub Actions Bot"
           git config --global user.email "actions@github.com"
-          
-          # Add only the CSV. We ignore the charts/ folder according to your .gitignore
+
           git add stock_data.csv charts/*.png last_sent.json
-          
-          # Only commit if there are changes to the file to avoid errors
+
           git diff --quiet && git diff --staged --quiet || (git commit -m "chore: update stock data [skip ci]" && git push)

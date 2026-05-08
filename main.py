@@ -1,6 +1,8 @@
 import os
 import json
+from datetime import date
 from dotenv import load_dotenv
+import holidays
 from api import get_stock_price
 from charts import create_charts
 from notifier import send_discord_message
@@ -24,6 +26,12 @@ def save_last_sent(data):
 
 def main():
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
+    today = date.today()
+    br_holidays = holidays.country_holidays("BR")
+    if today in br_holidays:
+        print(f"Today ({today}) is a Brazilian holiday ({br_holidays[today]}). Market closed, skipping.")
+        return
 
     with open("stock_thresholds.json", "r") as f:
         thresholds = json.load(f)
