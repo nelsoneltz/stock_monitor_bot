@@ -7,6 +7,21 @@ TOKEN = os.environ.get("BRAPI_TOKEN")
 HEADERS = {"Authorization": f"Bearer {TOKEN}"}
 API_URL = "https://brapi.dev/api/quote/"
 
+def purge_old_data(csv_path='stock_data.csv', months=2):
+    if not os.path.isfile(csv_path):
+        return
+    df = pd.read_csv(csv_path)
+    if 'regularMarketTime' not in df.columns:
+        return
+    df['regularMarketTime'] = pd.to_datetime(df['regularMarketTime'], utc=True, errors='coerce')
+    cutoff = datetime.now(tz=df['regularMarketTime'].dt.tz) - timedelta(days=months * 30)
+    before = len(df)
+    df = df[df['regularMarketTime'] >= cutoff]
+    after = len(df)
+    if before != after:
+        df.to_csv(csv_path, index=False)
+        print(f"Purged {before - after} rows older than {months} months from {csv_path}")
+
 def save_data(data):
     file_exists = os.path.isfile('stock_data.csv')
     df = pd.DataFrame(data['results']).drop(columns=['logourl'], errors='ignore')

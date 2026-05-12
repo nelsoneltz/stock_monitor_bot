@@ -3,7 +3,7 @@ import json
 from datetime import date
 from dotenv import load_dotenv
 import holidays
-from api import get_stock_price
+from api import get_stock_price, purge_old_data
 from charts import create_charts
 from notifier import send_discord_message
 
@@ -32,6 +32,8 @@ def main():
     if today in br_holidays:
         print(f"Today ({today}) is a Brazilian holiday ({br_holidays[today]}). Market closed, skipping.")
         return
+
+    purge_old_data()
 
     with open("stock_thresholds.json", "r") as f:
         thresholds = json.load(f)
