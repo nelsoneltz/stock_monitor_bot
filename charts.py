@@ -21,7 +21,7 @@ def create_charts():
     df = pd.read_csv("stock_data.csv")
 
     # Convert date column
-    df["regularMarketTime"] = pd.to_datetime(df["regularMarketTime"], utc=True)
+    df["regularMarketTime"] = pd.to_datetime(df["regularMarketTime"], format='ISO8601', utc=True)
 
     # Filter last 2 days
     cutoff_date = pd.Timestamp.now(tz="UTC") - pd.Timedelta(days=11)

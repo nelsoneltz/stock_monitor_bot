@@ -13,12 +13,13 @@ def purge_old_data(csv_path='stock_data.csv', months=2):
     df = pd.read_csv(csv_path)
     if 'regularMarketTime' not in df.columns:
         return
-    df['regularMarketTime'] = pd.to_datetime(df['regularMarketTime'], utc=True, errors='coerce')
+    df['regularMarketTime'] = pd.to_datetime(df['regularMarketTime'], format='mixed', utc=True, errors='coerce')
     cutoff = datetime.now(tz=df['regularMarketTime'].dt.tz) - timedelta(days=months * 30)
     before = len(df)
     df = df[df['regularMarketTime'] >= cutoff]
     after = len(df)
     if before != after:
+        df['regularMarketTime'] = df['regularMarketTime'].dt.strftime('%Y-%m-%dT%H:%M:%S.000Z')
         df.to_csv(csv_path, index=False)
         print(f"Purged {before - after} rows older than {months} months from {csv_path}")
 
@@ -28,7 +29,7 @@ def save_data(data):
     df.to_csv('stock_data.csv', mode='a', header=not file_exists, index=False)
 
 def get_stock_price(ticker):
-    response = requests.get(f"{API_URL}{ticker}", headers=HEADERS, timeout=10)
+    response = requests.get(f"{API_URL}{ticker}", headers=HEADERS, timeout=30)
     data = response.json()
     save_data(data)
     
