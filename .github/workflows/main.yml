@@ -31,18 +31,9 @@ jobs:
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install requests pandas matplotlib python-dotenv holidays
+          pip install -r requirements.txt
 
       - name: Run Stock Bot
-        if: github.event.schedule != '0 21 * * 5'
-        env:
-          BRAPI_TOKEN: ${{ secrets.BRAPI_TOKEN }}
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          DISCORD_USER_ID: ${{ secrets.DISCORD_USER_ID }}
-        run: python main.py
-
-      - name: Run Stock Bot (Friday closing)
-        if: github.event.schedule == '0 21 * * 5'
         env:
           BRAPI_TOKEN: ${{ secrets.BRAPI_TOKEN }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}

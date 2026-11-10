@@ -3,8 +3,6 @@ import os
 import pandas as pd
 from datetime import datetime, timedelta
 
-TOKEN = os.environ.get("BRAPI_TOKEN")
-HEADERS = {"Authorization": f"Bearer {TOKEN}"}
 API_URL = "https://brapi.dev/api/quote/"
 
 def purge_old_data(csv_path='stock_data.csv', months=2):
@@ -29,8 +27,12 @@ def save_data(data):
     df.to_csv('stock_data.csv', mode='a', header=not file_exists, index=False)
 
 def get_stock_price(ticker):
-    response = requests.get(f"{API_URL}{ticker}", headers=HEADERS, timeout=30)
+    headers = {"Authorization": f"Bearer {os.environ.get('BRAPI_TOKEN')}"}
+    response = requests.get(f"{API_URL}{ticker}", headers=headers, timeout=30)
+    response.raise_for_status()
     data = response.json()
+    if not data.get("results"):
+        raise ValueError(f"No results in API response: {data}")
     save_data(data)
     
     res = data["results"][0]

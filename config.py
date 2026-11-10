@@ -16,9 +16,11 @@ class Config:
         except FileNotFoundError:
             # Create default config if file doesn't exist
             default_config = {
-                "AURA33": 130.0,
                 "PETR4": 29.0,
-                "VALE3": 70.0
+                "VALE3": 60.0,
+                "BBAS3": 16.0,
+                "BBDC4": 14.0,
+                "ITSA4": 8.0
             }
             self._save_config(default_config)
             return default_config

@@ -2,10 +2,6 @@ import requests
 import os
 from config import Config
 
-# Load Discord webhook URL from environment variables
-WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK_URL")
-# Load Discord user ID for mentions when price alerts are triggered
-DISCORD_USER_ID = os.environ.get("DISCORD_USER_ID")
 # Initialize configuration to access stock price thresholds
 config = Config()
 
@@ -19,7 +15,14 @@ def send_discord_message(price, change, time, ticker, stock_data=None):
         time (str): Timestamp of the stock data
         ticker (str): Stock ticker symbol
         stock_data (dict, optional): Complete stock data from API
+
+    Returns:
+        bool: True if Discord accepted the message
     """
+    # Read env vars at call time so .env loaded by the caller is respected
+    webhook_url = os.environ.get("DISCORD_WEBHOOK_URL")
+    # Discord user ID for mentions when price alerts are triggered
+    discord_user_id = os.environ.get("DISCORD_USER_ID")
     # Get the configured price threshold for this ticker
     threshold = config.get_threshold(ticker)
     # Construct path to the chart image for this ticker
@@ -30,7 +33,7 @@ def send_discord_message(price, change, time, ticker, stock_data=None):
     
     # Add alert mention if price drops below the configured threshold
     if price <= threshold:
-        content += f"\n⚠️ **Abaixo do limite!** <@{DISCORD_USER_ID}>"
+        content += f"\n⚠️ **Abaixo do limite!** <@{discord_user_id}>"
 
     # Prepare the Discord webhook payload
     payload = {"content": content}
@@ -38,11 +41,21 @@ def send_discord_message(price, change, time, ticker, stock_data=None):
     # Calculate absolute percentage change (for comparison)
     abs_change = abs(stock_data['regularMarketChangePercent']) if stock_data else abs(change)
     
-    # Send message with chart attachment if change exceeds 5% and chart exists
-    if abs_change > 5.0 and os.path.exists(image_path):
-        with open(image_path, "rb") as f:
-            files = {"file": (f"{ticker}_chart.png", f, "image/png")}
-            requests.post(WEBHOOK_URL, data=payload, files=files)
-    else:
-        # Send text-only message if change is small or chart doesn't exist
-        requests.post(WEBHOOK_URL, json=payload)
+    try:
+        # Send message with chart attachment if change exceeds 5% and chart exists
+        if abs_change > 5.0 and os.path.exists(image_path):
+            with open(image_path, "rb") as f:
+                files = {"file": (f"{ticker}_chart.png", f, "image/png")}
+                response = requests.post(webhook_url, data=payload, files=files, timeout=30)
+        else:
+            # Send text-only message if change is small or chart doesn't exist
+            response = requests.post(webhook_url, json=payload, timeout=30)
+    except requests.RequestException as e:
+        # Don't print the exception itself: its message contains the webhook path (secret)
+        print(f"Failed to send {ticker} message: {type(e).__name__}")
+        return False
+
+    if response.status_code not in (200, 204):
+        print(f"Failed to send {ticker} message: {response.status_code} {response.text}")
+        return False
+    return True

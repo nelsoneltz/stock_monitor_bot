@@ -2,12 +2,14 @@ import os
 import json
 from datetime import date
 from dotenv import load_dotenv
+
+# Load .env before importing modules that read environment variables at import time
+load_dotenv()
+
 import holidays
 from api import get_stock_price, purge_old_data
 from charts import create_charts
 from notifier import send_discord_message
-
-load_dotenv()
 
 LAST_SENT_FILE = "last_sent.json"
 
@@ -28,9 +30,13 @@ def main():
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
     today = date.today()
-    br_holidays = holidays.country_holidays("BR")
-    if today in br_holidays:
-        print(f"Today ({today}) is a Brazilian holiday ({br_holidays[today]}). Market closed, skipping.")
+    # B3 trading calendar; B3 also has no trading session on Dec 24 and Dec 31
+    b3_holidays = holidays.financial_holidays("BVMF")
+    if today in b3_holidays:
+        print(f"Today ({today}) is a B3 holiday ({b3_holidays[today]}). Market closed, skipping.")
+        return
+    if (today.month, today.day) in ((12, 24), (12, 31)):
+        print(f"Today ({today}) has no B3 trading session. Market closed, skipping.")
         return
 
     purge_old_data()
@@ -71,14 +77,15 @@ def main():
             print(f"Price unchanged for {ticker} (R${price:.2f}), skipping notification")
             continue
 
-        send_discord_message(
+        sent = send_discord_message(
             price,
             stock["change"],
             stock["time"],
             ticker,
             stock["stock_data"],
         )
-        last_sent[ticker] = price
+        if sent:
+            last_sent[ticker] = price
 
     save_last_sent(last_sent)
 

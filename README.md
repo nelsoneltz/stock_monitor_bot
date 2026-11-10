@@ -4,7 +4,7 @@ Automated Brazilian stock market monitor that sends price alerts and charts to D
 
 ## Features
 
-- **Real-time monitoring** - Tracks AURA33, PETR4, VALE3 stocks via Brapi API
+- **Real-time monitoring** - Tracks PETR4, VALE3, BBAS3, BBDC4, ITSA4 stocks via Brapi API
 - **Price alerts** - Mentions users when stocks fall below configured thresholds
 - **Smart charts** - Generates visual trends for stocks with >5% daily change
 - **Historical data** - Stores all price data in CSV format
@@ -27,9 +27,11 @@ DISCORD_USER_ID=your_discord_user_id
 3. **Set price thresholds** (edit `stock_thresholds.json`)
 ```json
 {
-    "AURA33": 130.0,
     "PETR4": 29.0,
-    "VALE3": 70.0
+    "VALE3": 60.0,
+    "BBAS3": 16.0,
+    "BBDC4": 14.0,
+    "ITSA4": 8.0
 }
 ```
 
@@ -48,7 +50,7 @@ python main.py
 
 - **`main.py`** - Orchestrates workflow: data collection → charting → notifications
 - **`api.py`** - Fetches stock prices from Brapi API, saves to CSV
-- **`charts.py`** - Creates matplotlib charts (2-day history with thresholds)
+- **`charts.py`** - Creates matplotlib charts (11-day history with thresholds)
 - **`notifier.py`** - Sends Discord messages with optional chart attachments
 - **`config.py`** - Manages stock price thresholds from JSON
 
@@ -74,9 +76,9 @@ Hora: 2026-03-13 15:30:00
 
 ## Configuration
 
-**Add stocks** - Edit `main.py`:
-```python
-tickers = ["AURA33", "PETR4", "VALE3", "BBAS3"]
+**Add stocks** - Add the ticker and its threshold to `stock_thresholds.json`:
+```json
+"ITSA4": 8.0
 ```
 
 **Change alert thresholds** - Edit `stock_thresholds.json` or use config API:

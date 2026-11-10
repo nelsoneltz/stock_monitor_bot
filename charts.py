@@ -23,7 +23,7 @@ def create_charts():
     # Convert date column
     df["regularMarketTime"] = pd.to_datetime(df["regularMarketTime"], format='ISO8601', utc=True)
 
-    # Filter last 2 days
+    # Filter last 11 days
     cutoff_date = pd.Timestamp.now(tz="UTC") - pd.Timedelta(days=11)
     df = df[df["regularMarketTime"] >= cutoff_date]
 

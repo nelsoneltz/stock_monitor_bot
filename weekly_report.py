@@ -56,9 +56,8 @@ def send_weekly_report():
         print("No data for the week, skipping report.")
         return
 
-    monday_brt = monday - timedelta(hours=3)
-    friday_brt = monday_brt + timedelta(days=4)
-    week_range = f"{monday_brt.strftime('%d/%m')} – {friday_brt.strftime('%d/%m/%Y')}"
+    friday = monday + timedelta(days=4)
+    week_range = f"{monday.strftime('%d/%m')} – {friday.strftime('%d/%m/%Y')}"
 
     lines = [f"📊 **Relatório Semanal** | {week_range}\n"]
 
@@ -73,7 +72,12 @@ def send_weekly_report():
         )
 
     content = "\n".join(lines)
-    response = requests.post(WEBHOOK_URL, json={"content": content}, timeout=10)
+    try:
+        response = requests.post(WEBHOOK_URL, json={"content": content}, timeout=10)
+    except requests.RequestException as e:
+        # Don't print the exception itself: its message contains the webhook path (secret)
+        print(f"Failed to send weekly report: {type(e).__name__}")
+        return
     if response.status_code in (200, 204):
         print("Weekly report sent successfully.")
     else:
